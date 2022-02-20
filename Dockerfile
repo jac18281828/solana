@@ -26,7 +26,7 @@ ENV PATH=$/build/bin:$PATH
 
 USER jac
 RUN /build/bin/solana-install init ${SOLANA}
-#RUN rm -rf /build
+RUN sudo rm -rf /build
 
 ENV SOLANA=${SOLANA}
 CMD echo "TypeScript Dev ${TYPESCRIPT_VERSION}; Solana ${SOLANA}"
