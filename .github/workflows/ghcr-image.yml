@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: GHCR Image CI
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
     types: [created]
 
 concurrency:
-  group: "docker-image"
+  group: "ghcr-image"
   cancel-in-progress: true
 
 jobs:
@@ -31,19 +31,20 @@ jobs:
           echo "REPOSITORY_PATH=$( echo ${GITHUB_REPOSITORY} | tr '[:upper:]' '[:lower:]' )" >> ${GITHUB_ENV}
           echo "REPOSITORY_SHA=$( echo ${GITHUB_SHA} | cut -c 1-8 )" >> ${GITHUB_ENV}
       -
-        name: Login to Docker Hub
+        name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Build and Push (Docker Hub)
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Build and Push (GHCR)
         uses: docker/build-push-action@v3
         with:
           context: .
           push: ${{ github.event_name == 'release' && github.event.action == 'created' }}
           tags: |
-            ${{ env.REPOSITORY_PATH }}:v${{ github.event.release.tag_name }}
-            ${{ env.REPOSITORY_PATH }}:${{ env.REPOSITORY_SHA }}
-            ${{ env.REPOSITORY_PATH }}:latest
+            ghcr.io/${{ env.REPOSITORY_PATH }}:v${{ github.event.release.tag_name }}
+            ghcr.io/${{ env.REPOSITORY_PATH }}:${{ env.REPOSITORY_SHA }}
+            ghcr.io/${{ env.REPOSITORY_PATH }}:latest
         if: ${{ github.event_name == 'release' && github.event.action == 'created' }}

@@ -18,7 +18,7 @@ WORKDIR /build
 ENV PATH=/usr/local/rust/bin:${PATH}
 
 # Solana
-ARG SOLANA=1.9.8
+ARG SOLANA=1.14.7
 ADD https://github.com/solana-labs/solana/archive/refs/tags/v${SOLANA}.tar.gz v${SOLANA}.tar.gz
 RUN tar -zxvf v${SOLANA}.tar.gz
 RUN ./solana-${SOLANA}/scripts/cargo-install-all.sh .
