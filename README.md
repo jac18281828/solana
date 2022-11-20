@@ -10,6 +10,10 @@ Includes
 export PATH="/home/jac/.local/share/solana/install/active_release/bin:$PATH"
 ```
 
+### Architecture
+* linux/amd64 
+* linux/arm64
+
 Example Dockerfile - for use as builder
 
 ```

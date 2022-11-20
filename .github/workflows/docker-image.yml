@@ -1,10 +1,13 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  push:
+    branches:
+      - "*"
   release:
     types: [created]
 
@@ -13,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  dockerimage:
     runs-on: ubuntu-latest
     steps:
       -
@@ -32,18 +35,24 @@ jobs:
           echo "REPOSITORY_SHA=$( echo ${GITHUB_SHA} | cut -c 1-8 )" >> ${GITHUB_ENV}
       -
         name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
+      -
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and Push (Docker Hub)
         uses: docker/build-push-action@v3
         with:
           context: .
+          platforms: linux/amd64, linux/arm64/v8          
           push: ${{ github.event_name == 'release' && github.event.action == 'created' }}
           tags: |
             ${{ env.REPOSITORY_PATH }}:v${{ github.event.release.tag_name }}
             ${{ env.REPOSITORY_PATH }}:${{ env.REPOSITORY_SHA }}
             ${{ env.REPOSITORY_PATH }}:latest
-        if: ${{ github.event_name == 'release' && github.event.action == 'created' }}

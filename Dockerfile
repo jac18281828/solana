@@ -2,11 +2,11 @@ ARG VERSION=latest
 FROM jac18281828/tsdev:${VERSION}
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
-        apt update && \
-        apt install -y -q --no-install-recommends \
-        make gcc pkg-config build-essential libudev-dev libclang-dev libssl-dev
-RUN apt clean
-RUN rm -rf /var/lib/apt/lists/*
+    apt update && \
+    apt install -y -q --no-install-recommends \
+        make gcc-10 pkg-config build-essential libudev-dev libclang-dev libssl-dev && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
 
 ARG RUST_HOME=/usr/local/rust
 ENV RUSTUP_HOME=${RUST_HOME}
