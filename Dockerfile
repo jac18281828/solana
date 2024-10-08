@@ -61,11 +61,8 @@ ARG SOLANA=1.18.25
 ADD --chown=${USER}:${USER} https://github.com/solana-labs/solana/archive/refs/tags/v${SOLANA}.tar.gz v${SOLANA}.tar.gz
 RUN tar -zxvf v${SOLANA}.tar.gz
 RUN ./solana-${SOLANA}/scripts/cargo-install-all.sh /home/solana/.local/share/solana/install/releases/${SOLANA}
+RUN for file in /home/solana/.local/share/solana/install/releases/${SOLANA}/bin/*; do strip ${file}; done
 ENV PATH=$/build/bin:$PATH
-
-USER solana
-#RUN /build/bin/solana-install init ${SOLANA}
-#RUN sudo rm -rf /build
 
 ENV SOLANA=${SOLANA}
 CMD echo "Solana in /home/solana/.local/share/solana/install/releases/${SOLANA}"
@@ -76,9 +73,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
   apt update && \
   apt install -y -q --no-install-recommends \
     ca-certificates apt-transport-https \
-    sudo ripgrep procps build-essential \
-    python3 python3-pip clang \
-    git valgrind curl protobuf-compiler \
+    sudo ripgrep procps \
+    python3 python3-pip \
+    git curl protobuf-compiler \
     pkg-config openssl libssl-dev && \
   apt clean && \
   rm -rf /var/lib/apt/lists/*
@@ -93,7 +90,6 @@ ENV USER=solana
 ARG SOLANA=1.18.25
 COPY --chown=${USER}:${USER} --from=go-builder /usr/local/go/bin/yamlfmt /usr/local/go/bin/yamlfmt
 COPY --chown=${USER}:${USER} --from=builder /home/solana/.cargo /home/solana/.cargo
-COPY --chown=${USER}:${USER} --from=builder /home/solana/.rustup /home/solana/.rustup
 COPY --chown=${USER}:${USER} --from=builder /home/solana/.local/share/solana/install/releases/${SOLANA} /home/solana/.local/share/solana/install/releases/${SOLANA}
 ENV PATH=${PATH}:/home/solana/.cargo/bin:/usr/local/go/bin:/home/solana/.local/share/solana/install/releases/${SOLANA}
 
