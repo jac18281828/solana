@@ -69,10 +69,10 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 ENV USER=solana
 ARG SOLANA=1.18.25
-COPY --chown=${USER}:${USER} --from=go-builder /usr/local/go/bin/yamlfmt /usr/local/go/bin/yamlfmt
+COPY --chown=${USER}:${USER} --from=go-builder /go/bin/yamlfmt /go/bin/yamlfmt
 COPY --chown=${USER}:${USER} --from=builder /home/solana/.cargo /home/solana/.cargo
 COPY --chown=${USER}:${USER} --from=builder /home/solana/.local/share/solana/install/releases/${SOLANA} /home/solana/.local/share/solana/install/releases/${SOLANA}
-ENV PATH=${PATH}:/home/solana/.cargo/bin:/usr/local/go/bin:/home/solana/.local/share/solana/install/releases/${SOLANA}
+ENV PATH=${PATH}:/home/solana/.cargo/bin:/go/bin:/home/solana/.local/share/solana/install/releases/${SOLANA}
 
 ENV USER=solana
 USER solana
