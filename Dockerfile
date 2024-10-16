@@ -1,33 +1,16 @@
-FROM debian:stable-slim AS go-builder
+# Stage 1: Build yamlfmt
+FROM golang:1 AS go-builder
 # defined from build kit
 # DOCKER_BUILDKIT=1 docker build . -t ...
 ARG TARGETARCH
 
-RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt update && \
-    apt install -y -q --no-install-recommends \
-    git curl gnupg2 build-essential coreutils \
-    openssl libssl-dev pkg-config \
-    ca-certificates apt-transport-https \
-    python3 && \
-    apt clean && \
-    rm -rf /var/lib/apt/lists/*
-
-## Go Lang
-ARG GO_VERSION=1.23.2
-ADD https://go.dev/dl/go${GO_VERSION}.linux-$TARGETARCH.tar.gz /go/go${GO_VERSION}.linux-$TARGETARCH.tar.gz
-RUN echo 'SHA256 of this go source package...'
-RUN cat /go/go${GO_VERSION}.linux-$TARGETARCH.tar.gz | sha256sum 
-RUN tar -C /usr/local -xzf /go/go${GO_VERSION}.linux-$TARGETARCH.tar.gz
-
+# Install yamlfmt
 WORKDIR /yamlfmt
-ENV GOBIN=/usr/local/go/bin
-ENV PATH=$PATH:${GOBIN}
-RUN go install github.com/google/yamlfmt/cmd/yamlfmt@latest
-RUN ls -lR /usr/local/go/bin/yamlfmt && strip /usr/local/go/bin/yamlfmt && ls -lR /usr/local/go/bin/yamlfmt
-RUN yamlfmt --version
+RUN go install github.com/google/yamlfmt/cmd/yamlfmt@latest && \
+    strip $(which yamlfmt) && \
+    yamlfmt --version
 
-FROM debian:stable-slim AS builder
+FROM rust:1-slim AS builder
 ARG TARGETARCH
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt update && \
@@ -47,8 +30,6 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 ENV USER=solana
 USER solana
-
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable -y
 
 WORKDIR /build
 RUN chown -R ${USER}:${USER} /build
