@@ -1,4 +1,4 @@
-# 1.18.25_1 (2024-10-16)
+# 1.18.25_2 (2024-10-16)
 
 * cleanup go build
 * depend on rust image
