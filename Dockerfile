@@ -71,11 +71,15 @@ ENV USER=solana
 ARG SOLANA=1.18.25
 COPY --chown=${USER}:${USER} --from=go-builder /go/bin/yamlfmt /go/bin/yamlfmt
 COPY --chown=${USER}:${USER} --from=builder /usr/local/cargo /usr/local/cargo
+COPY --chown=${USER}:${USER} --from=builder /usr/local/rustup /usr/local/rustup
 COPY --chown=${USER}:${USER} --from=builder /home/solana/.local/share/solana/install/releases/${SOLANA} /home/solana/.local/share/solana/install/releases/${SOLANA}
 ENV PATH=${PATH}:/usr/local/cargo/bin:/go/bin:/home/solana/.local/share/solana/install/releases/${SOLANA}
+WORKDIR /home/solana
 
 ENV USER=solana
 USER solana
+
+RUN rustup default stable
 
 LABEL \
     org.label-schema.name="solana" \
