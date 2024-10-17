@@ -13,16 +13,26 @@ RUN go install github.com/google/yamlfmt/cmd/yamlfmt@latest && \
 FROM rust:1-slim AS builder
 ARG TARGETARCH
 RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt update && \
-    apt install -y -q --no-install-recommends \
-    git curl gnupg2 build-essential \
-    linux-headers-${TARGETARCH} libc6-dev \ 
-    openssl libssl-dev pkg-config llvm libclang-dev \
-    protobuf-compiler libudev-dev \
-    ca-certificates apt-transport-https \
-    python3 && \
-    apt clean && \
-    rm -rf /var/lib/apt/lists/*
+  apt-get update && \
+  apt-get install -y -q --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    curl \
+    git \
+    gnupg2 \
+    libc6-dev \ 
+    libclang-dev \
+    libssl-dev \
+    libudev-dev \
+    linux-headers-${TARGETARCH} \
+    llvm \
+    openssl \
+    pkg-config \
+    protobuf-compiler \
+    python3 \
+    && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN useradd --create-home -s /bin/bash solana
 RUN usermod -a -G sudo solana
@@ -40,7 +50,7 @@ RUN echo ${PATH} && cargo --version
 # Solana
 ARG SOLANA=1.18.25
 ADD --chown=${USER}:${USER} https://github.com/solana-labs/solana/archive/refs/tags/v${SOLANA}.tar.gz v${SOLANA}.tar.gz
-RUN tar -zxvf v${SOLANA}.tar.gz
+RUN tar -zxvf v${SOLANA}.tar.gz || { echo "Failed to extract tarball"; exit 1; }
 RUN ./solana-${SOLANA}/scripts/cargo-install-all.sh /home/solana/.local/share/solana/install/releases/${SOLANA}
 RUN for file in /home/solana/.local/share/solana/install/releases/${SOLANA}/bin/*; do strip ${file}; done
 ENV PATH=$/build/bin:$PATH
@@ -51,15 +61,23 @@ CMD echo "Solana in /home/solana/.local/share/solana/install/releases/${SOLANA}"
 FROM jac18281828/tsdev:latest
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
-  apt update && \
-  apt install -y -q --no-install-recommends \
-    ca-certificates apt-transport-https \
-    sudo ripgrep procps \
-    python3 python3-pip \
-    git curl protobuf-compiler \
-    pkg-config openssl libssl-dev && \
-  apt clean && \
-  rm -rf /var/lib/apt/lists/*
+  apt-get update && \
+  apt-get install -y -q --no-install-recommends \
+    ca-certificates \
+    curl \
+    git \
+    libssl-dev \
+    openssl \
+    pkg-config \
+    procps \
+    protobuf-compiler \
+    python3 \
+    python3-pip \
+    ripgrep \
+    sudo \
+    && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN echo "building platform $(uname -m)"
 
@@ -87,6 +105,6 @@ LABEL \
     org.label-schema.url="https://github.com/jac18281828/solana" \
     org.label-schema.vcs-url="git@github.com:jac18281828/solana.git" \
     org.label-schema.vendor="jac18281828" \
-    org.label-schema.version=$VERSION \
+    org.label-schema.version=${SOLANA} \
     org.label-schema.schema-version="1.0" \
     org.opencontainers.image.description="Solana Development Container for Visual Studio Code"
