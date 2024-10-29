@@ -1,3 +1,7 @@
+# 1.18.25_6 (2024-10-29)
+
+* restore build-essential 🤷‍♀️
+
 # 1.18.25_5 (2024-10-16)
 
 * fixing path and other issues
