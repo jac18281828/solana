@@ -17,8 +17,11 @@ export PATH="/home/jac/.local/share/solana/install/active_release/bin:$PATH"
 Example Dockerfile - for use as builder
 
 ```
-ARG VERSION=latest
-FROM jac18281828/solana:${VERSION} as builder
+FROM jac18281828/solana:latest
+
+COPY --chown=solana:solana . .
+
+RUN rustup component add rustfmt
 ```
 
 Also available from [GitHub GHCR](https://github.com/jac18281828/solana/pkgs/container/solana)
